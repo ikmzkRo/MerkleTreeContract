@@ -33,4 +33,16 @@ describe("IkmzMerkleProof", async function () {
 
   // Calculating the Merkle Root.
   const allowlistRootHash = merkleTree.getHexRoot();
+
+  let IkmzMerkleProof: Contract;
+  let owner: SignerWithAddress;
+  let allowListedUser: SignerWithAddress;
+  let notAllowListedUser: SignerWithAddress;
+
+  beforeEach(async function () {
+    [owner, allowListedUser, notAllowListedUser] = await ethers.getSigners();
+    const IkmzMerkleProofFactory = await ethers.getContractFactory("IkmzMerkleProof");
+    IkmzMerkleProof = await IkmzMerkleProofFactory.deploy();
+    await IkmzMerkleProof.deployed();
+  });
 });
