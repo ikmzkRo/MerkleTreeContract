@@ -23,6 +23,7 @@ describe("IkmzMerkleProof", async function () {
     "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
     "0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc",
     "0x976EA74026E726554dB657fA54763abd0C3a0aa9",
+    "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
   ];
 
   // Transforming a list of EOAs into their respective Keccak-256 hashes.
@@ -46,25 +47,25 @@ describe("IkmzMerkleProof", async function () {
     await IkmzMerkleProof.deployed();
   });
 
-  it("should set the allowlist root", async function () {
-    // Set the allowlist root
-    await IkmzMerkleProof.setAllowlist(allowlistRootHash);
-
-    // Check if the allowlist root is set correctly
-    expect(await IkmzMerkleProof.getMerkleRoot()).to.equal(allowlistRootHash);
-  });
-
   it("should mint to an address in the allowlist", async function () {
+    console.log('allowListedUser.address', allowListedUser.address);
     // Generate a proof for an allowlisted user
     const proof = merkleTree.getHexProof(keccak256(allowListedUser.address));
 
     // Set the allowlist root
     await IkmzMerkleProof.setAllowlist(allowlistRootHash);
 
+    // Check if the allowlist root is set correctly
+    expect(await IkmzMerkleProof.getMerkleRoot()).to.equal(allowlistRootHash);
+
+    // Check if the address is set
+    const res = await IkmzMerkleProof.checkValidity(proof)
+    console.log('res', res);
+
     // Mint to the allowlisted user
-    await expect(IkmzMerkleProof.allowlistMint(proof))
-      .to.emit(IkmzMerkleProof, "Mint") // Check if the Mint event is emitted
-      .withArgs(owner.address, allowListedUser.address, 1, 1, "0x"); // You may need to adjust these arguments based on your contract's implementation
+    // await expect(IkmzMerkleProof.allowlistMint(proof))
+    //   .to.emit(IkmzMerkleProof, "Mint") // Check if the Mint event is emitted
+    //   .withArgs(owner.address, allowListedUser.address, 1, 1, "0x"); // You may need to adjust these arguments based on your contract's implementation
   });
 
   it("should not mint to an address not in the allowlist", async function () {

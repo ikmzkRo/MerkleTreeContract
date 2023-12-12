@@ -34,6 +34,12 @@ contract IkmzMerkleProofAuth is ERC1155, Ownable {
         _;
     }
 
+    function checkValidity(bytes32[] calldata _merkleProof) public view returns (bool){
+        bytes32 leaf = keccak256(abi.encodePacked(msg.sender));
+        require(MerkleProof.verify(_merkleProof, merkleRoot, leaf), "Incorrect proof");
+        return true; // Or you can mint tokens here
+    }
+
     function mint(uint256 amount) internal {
         _mint(msg.sender, 1, amount, "");
     }
