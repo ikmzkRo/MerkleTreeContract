@@ -30,7 +30,7 @@ contract IkmzMerkleProofAuth is ERC1155, Ownable {
 
     // The verification of whether it exists in the allowlist.
     modifier allowList(bytes32 _merkleRoot, bytes32[] memory proof) {
-        require(proof.verify(merkleRoot, keccak256(abi.encodePacked(msg.sender))),"You are not in the list");
+        require(proof.verify(_merkleRoot, keccak256(abi.encodePacked(msg.sender))),"You are not in the list");
         _;
     }
 
