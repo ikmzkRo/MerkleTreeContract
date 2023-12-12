@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-// https://zenn.dev/rlho/articles/2193884e3f4b9d
+// ref
+// https://zenn.dev/rlho/articles/2193884e3f4b9d#smart-contract
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";

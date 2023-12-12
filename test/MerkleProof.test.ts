@@ -33,6 +33,4 @@ describe("IkmzMerkleProof", async function () {
 
   // Calculating the Merkle Root.
   const allowlistRootHash = merkleTree.getHexRoot();
-
-  console.log("allowlistRootHash:", allowlistRootHash);
 });
