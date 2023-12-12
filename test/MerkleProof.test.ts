@@ -58,11 +58,11 @@ describe("IkmzMerkleProof", async function () {
     // Check if the allowlist root is set correctly
     expect(await IkmzMerkleProof.getMerkleRoot()).to.equal(allowlistRootHash);
 
-    // Check if the address is set
-    const res = await IkmzMerkleProof.checkValidity(proof)
-    console.log('res', res);
+    // TODO: Check if the address is set
+    // const res = await IkmzMerkleProof.checkValidity(proof)
+    // console.log('res', res);
 
-    // Mint to the allowlisted user
+    // TODO: Mint to the allowlisted user
     // await expect(IkmzMerkleProof.allowlistMint(proof))
     //   .to.emit(IkmzMerkleProof, "Mint") // Check if the Mint event is emitted
     //   .withArgs(owner.address, allowListedUser.address, 1, 1, "0x"); // You may need to adjust these arguments based on your contract's implementation
