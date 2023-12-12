@@ -11,7 +11,7 @@ import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 
 
-contract IkmzMerkleProof is ERC1155, Ownable {
+contract IkmzMerkleProofAuth is ERC1155, Ownable {
     bytes32 merkleRoot;
     using MerkleProof for bytes32[];
     string public name = "Sample";
@@ -22,6 +22,10 @@ contract IkmzMerkleProof is ERC1155, Ownable {
 
     function setAllowlist(bytes32 listRoot) public onlyOwner {
       merkleRoot = listRoot;
+    }
+
+    function getMerkleRoot() external view returns (bytes32) {
+        return merkleRoot;
     }
 
     // The verification of whether it exists in the allowlist.

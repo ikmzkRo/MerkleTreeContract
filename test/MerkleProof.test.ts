@@ -41,8 +41,16 @@ describe("IkmzMerkleProof", async function () {
 
   beforeEach(async function () {
     [owner, allowListedUser, notAllowListedUser] = await ethers.getSigners();
-    const IkmzMerkleProofFactory = await ethers.getContractFactory("IkmzMerkleProof");
+    const IkmzMerkleProofFactory = await ethers.getContractFactory("IkmzMerkleProofAuth");
     IkmzMerkleProof = await IkmzMerkleProofFactory.deploy();
     await IkmzMerkleProof.deployed();
+  });
+
+  it("should set the allowlist root", async function () {
+    // Set the allowlist root
+    await IkmzMerkleProof.setAllowlist(allowlistRootHash);
+
+    // Check if the allowlist root is set correctly
+    expect(await IkmzMerkleProof.getMerkleRoot()).to.equal(allowlistRootHash);
   });
 });
