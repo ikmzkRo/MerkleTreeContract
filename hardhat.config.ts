@@ -8,7 +8,16 @@ require("@nomiclabs/hardhat-etherscan");
  * @type import('hardhat/config').HardhatUserConfig
  */
 module.exports = {
-  solidity: "0.8.17",
+  solidity: {
+    version: "0.8.17",
+    settings: {
+      // コードサイズを最適化
+      optimizer: {
+        enabled: true,
+        runs: 200,
+      },
+    },
+  },
   networks: {
     goerli: {
       url: `https://eth-goerli.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY}`,
@@ -18,5 +27,12 @@ module.exports = {
   },
   etherscan: {
     apiKey: process.env.ETHERSCAN_API_KEY
-  }
+  },
+  gasReporter: {
+    enabled: false,
+    currency: "JPY",
+    gasPrice: 21, // Use an appropriate gas price for your network
+    coinmarketcap: process.env.COINMARKETCAP_API_KEY,
+    // outputFile: "./test/research/data/gas-report.csv",
+  },
 };
