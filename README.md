@@ -19,7 +19,7 @@
 ## Ref List
 | Command | Explanation |
 | ---- | ---- |
-| `https://zenn.dev/rlho/articles/2193884e3f4b9d` | [WIP-CONTRACT](https://github.com/ikmzkRo/hardhat-contract-demo/blob/main/contracts/token/ikmz-ERC1155/IkmzMerkleProof.sol) |
+| `https://zenn.dev/rlho/articles/2193884e3f4b9d` | [WIP-CONTRACT](https://github.com/ikmzkRo/hardhat-contract-demo/blob/main/contracts/token/ikmz-ERC1155/IkmzMerkleProof.sol), [WIP-CONTRACT-ERC1155](https://github.com/ikmzkRo/MerkleTreeContract/blob/main/contracts/MerkleProof.sol) |
 | `https://zenn.dev/microverse_dev/articles/how-to-allowlist-mint#contract-%E3%81%AE%E5%AE%9F%E8%A3%85` | [WIP-CONTRACT](https://github.com/ikmzkRo/hardhat-contract-demo/blob/main/contracts/token/ikmz-ERC721/IkmzMerkleProof.sol), [WIP-TEST](https://github.com/ikmzkRo/hardhat-contract-demo/blob/main/test/token/IkmzMerkleProof.test.ts) |
 |  |  |
 |  |  |
