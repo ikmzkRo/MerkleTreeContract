@@ -2,17 +2,26 @@
 pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract MerkleTreeResearch {
+contract MerkleTreeResearch is Ownable {
     // --- PROPERTIES ---- //
 
     // Calculated from `merkleTreeResearch.ts`
-    bytes32 public merkleRoot =
-        0x2e35b61278fbcec3f3b0bb361d928e373e089a61758af09690ce0a5391078ff2;
+    bytes32 public merkleRoot;
 
     mapping(address => bool) public whitelistClaimed;
 
     // --- FUNCTIONS ---- //
+    function setAllowlist(bytes32 _merkleRoot) public onlyOwner {
+        // Calculated from `merkleTreeResearch.ts`
+        merkleRoot = _merkleRoot;
+    }
+
+    function getMerkleRoot() external view returns (bytes32) {
+        return merkleRoot;
+    }
+
     function whitelistMint(bytes32[] calldata _merkleProof) public {
         require(!whitelistClaimed[msg.sender], "Address already claimed");
         bytes32 leaf = keccak256(abi.encodePacked(msg.sender));

@@ -78,23 +78,23 @@ describe("MerkleTreeResearch", async function () {
     await IkmzMerkleProof.deployed();
   });
 
-  it("should not mint to an address not in the allowlist", async function () {
-    // Check if the allowlist root is not set
-    const before = await IkmzMerkleProof.getMerkleRoot()
-    console.log('before', before);
+  it("should mint to an address not in the allowlist", async function () {
     expect(await IkmzMerkleProof.getMerkleRoot()).to.equal(zeroAddress);
 
+    // Convert Buffer to hex string with '0x' prefix
+    const allowlistRootHashHexString = "0x" + allowlistRootHash.toString("hex");
+    console.log('allowlistRootHashHexString', allowlistRootHashHexString);
+
     // Set the allowlist root
-    await IkmzMerkleProof.setAllowlist(allowlistRootHash);
+    await IkmzMerkleProof.setAllowlist(allowlistRootHashHexString);
+
+    // Get MerckleRoot
+    const res = await IkmzMerkleProof.getMerkleRoot();
+    console.log('res', res);
 
     // Check if the allowlist root is set correctly
-    const after = await IkmzMerkleProof.getMerkleRoot()
-    console.log('after', after);
-    expect(await IkmzMerkleProof.getMerkleRoot()).to.equal(allowlistRootHash);
-  });
+    expect(res).to.equal(allowlistRootHashHexString);
 
-
-  it("should mint to an address not in the allowlist", async function () {
     // // Generate a proof for a user not in the allowlist
     // const proof = merkleTree.getHexProof(keccak256(notAllowListedUser.address));
 
@@ -104,7 +104,5 @@ describe("MerkleTreeResearch", async function () {
     // // Try to mint to the user not in the allowlist and expect it to be reverted
     // await expect(IkmzMerkleProof.allowlistMint(proof)).to.be.revertedWith("You are not in the list");
   });
-
-
 
 });
