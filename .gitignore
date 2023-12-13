@@ -7,3 +7,7 @@ typechain
 #Hardhat files
 cache
 artifacts
+
+# stash-js
+scripts/deploy/stash-js
+test/stash-js

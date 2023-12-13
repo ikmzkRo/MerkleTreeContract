@@ -62,9 +62,9 @@ describe("IkmzMerkleProof", async function () {
     expect(await IkmzMerkleProof.getMerkleRoot()).to.equal(allowlistRootHash);
 
     // TODO: Check if the address is set
-    console.log('proof', proof);
-    const res = await IkmzMerkleProof.checkValidity(proof)
-    console.log('res', res);
+    // console.log('proof', proof);
+    // const res = await IkmzMerkleProof.checkValidity(proof)
+    // console.log('res', res);
 
     // TODO: Mint to the allowlisted user
     // await expect(IkmzMerkleProof.allowlistMint(proof))
