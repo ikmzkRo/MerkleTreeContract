@@ -25,7 +25,7 @@ describe("MerkleTreeResearch", async function () {
     "0X6E21D37E07A6F7E53C7ACE372CEC63D4AE4B6BD0",
     "0X09BAAB19FC77C19898140DADD30C4685C597620B",
     "0XCC4C29997177253376528C05D3DF91CF2D69061A",
-    "0xdD870fA1b7C4700F2BD7f44238821C26f7392148" // The address in remix
+    "0xa2fb2553e57436b455F57270Cc6f56f6dacDA1a5" // The address in remix
   ];
 
   // 3. Create a new array of `leafNodes` by hashing all indexes of the `whitelistAddresses`
@@ -45,24 +45,22 @@ describe("MerkleTreeResearch", async function () {
   console.log('Whitelist Merkle Tree\n', merkleTree.toString());
   console.log("Root Hash: ", allowlistRootHash);
 
-  // ***** ***** ***** ***** ***** ***** ***** ***** // 
+  // Convert Buffer to hex string with '0x' prefix
+  const allowlistRootHashHexString = "0x" + allowlistRootHash.toString("hex");
+  console.log('allowlistRootHashHexString', allowlistRootHashHexString);
 
-  // CLIENT-SIDE: Use `msg.sender` address to query and API that returns the merkle proof
-  // required to derive the root hash of the Merkle Tree
-
-  // ✅ Positive verification of address
+  // Choose claiming address from whitelist
   const claimingAddress = leafNodes[6];
-  // ❌ Change this address to get a `false` verification
-  // const claimingAddress = keccak256("0X5B38DA6A701C568545DCFCB03FCB875F56BEDDD6");
-
-  // `getHexProof` returns the neighbour leaf and all parent nodes hashes that will
-  // be required to derive the Merkle Trees root hash.
   const hexProof = merkleTree.getHexProof(claimingAddress);
   console.log(hexProof);
 
-  // ✅ - ❌: Verify is claiming address is in the merkle tree or not.
-  // This would be implemented in your Solidity Smart Contract
+  console.log('hexProof, claimingAddress, allowlistRootHash', hexProof, claimingAddress, allowlistRootHash);
   console.log(merkleTree.verify(hexProof, claimingAddress, allowlistRootHash));
+
+
+
+  // ***** ***** ***** ***** ***** ***** ***** ***** // 
+
 
   let IkmzMerkleProof: Contract;
   let owner: SignerWithAddress;
@@ -78,31 +76,27 @@ describe("MerkleTreeResearch", async function () {
     await IkmzMerkleProof.deployed();
   });
 
-  it("should mint to an address not in the allowlist", async function () {
+  it("[S] Check if the allowlist root is set correctly", async function () {
     expect(await IkmzMerkleProof.getMerkleRoot()).to.equal(zeroAddress);
 
-    // Convert Buffer to hex string with '0x' prefix
-    const allowlistRootHashHexString = "0x" + allowlistRootHash.toString("hex");
-    console.log('allowlistRootHashHexString', allowlistRootHashHexString);
-
-    // Set the allowlist root
+    // Set the allowlistRootHashHexString
     await IkmzMerkleProof.setAllowlist(allowlistRootHashHexString);
 
     // Get MerckleRoot
     const res = await IkmzMerkleProof.getMerkleRoot();
-    console.log('res', res);
 
     // Check if the allowlist root is set correctly
     expect(res).to.equal(allowlistRootHashHexString);
-
-    // // Generate a proof for a user not in the allowlist
-    // const proof = merkleTree.getHexProof(keccak256(notAllowListedUser.address));
-
-    // // Set the allowlist root
-    // await IkmzMerkleProof.setAllowlist(allowlistRootHash);
-
-    // // Try to mint to the user not in the allowlist and expect it to be reverted
-    // await expect(IkmzMerkleProof.allowlistMint(proof)).to.be.revertedWith("You are not in the list");
   });
+
+  it("should mint to an address in the allowlist", async function () {
+    // Set the allowlistRootHashHexString
+    await IkmzMerkleProof.setAllowlist(allowlistRootHashHexString);
+
+    console.log('hexProof', hexProof);
+    const tx = await IkmzMerkleProof.whitelistMint(hexProof)
+    await tx.wait();
+    console.log('tx', tx);
+  })
 
 });
