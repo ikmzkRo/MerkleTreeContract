@@ -22,8 +22,7 @@ describe("IkmzMerkleProof", async function () {
     "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
     "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
     "0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc",
-    "0x976EA74026E726554dB657fA54763abd0C3a0aa9",
-    "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
+    "0x976EA74026E726554dB657fA54763abd0C3a0aa9"
   ];
 
   // Transforming a list of EOAs into their respective Keccak-256 hashes.
@@ -39,6 +38,7 @@ describe("IkmzMerkleProof", async function () {
   let owner: SignerWithAddress;
   let allowListedUser: SignerWithAddress;
   let notAllowListedUser: SignerWithAddress;
+  const zeroAddress = '0x0000000000000000000000000000000000000000000000000000000000000000'
 
   beforeEach(async function () {
     [owner, allowListedUser, notAllowListedUser] = await ethers.getSigners();
@@ -52,6 +52,9 @@ describe("IkmzMerkleProof", async function () {
     // Generate a proof for an allowlisted user
     const proof = merkleTree.getHexProof(keccak256(allowListedUser.address));
 
+    // Check if the allowlist root is not set
+    expect(await IkmzMerkleProof.getMerkleRoot()).to.equal(zeroAddress);
+
     // Set the allowlist root
     await IkmzMerkleProof.setAllowlist(allowlistRootHash);
 
@@ -59,13 +62,18 @@ describe("IkmzMerkleProof", async function () {
     expect(await IkmzMerkleProof.getMerkleRoot()).to.equal(allowlistRootHash);
 
     // TODO: Check if the address is set
-    // const res = await IkmzMerkleProof.checkValidity(proof)
-    // console.log('res', res);
+    console.log('proof', proof);
+    const res = await IkmzMerkleProof.checkValidity(proof)
+    console.log('res', res);
 
     // TODO: Mint to the allowlisted user
     // await expect(IkmzMerkleProof.allowlistMint(proof))
     //   .to.emit(IkmzMerkleProof, "Mint") // Check if the Mint event is emitted
     //   .withArgs(owner.address, allowListedUser.address, 1, 1, "0x"); // You may need to adjust these arguments based on your contract's implementation
+
+    // 1) IkmzMerkleProof
+    // should mint to an address in the allowlist:
+    // Error: call revert exception; VM Exception while processing transaction: reverted with reason string "Incorrect proof" [ See: https://links.ethers.org/v5-errors-CALL_EXCEPTION ] (method="checkValidity(bytes32[])", data="0x08c379a00000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000f496e636f72726563742070726f6f660000000000000000000000000000000000", errorArgs=["Incorrect proof"], errorName="Error", errorSignature="Error(string)", reason="Incorrect proof", code=CALL_EXCEPTION, version=abi/5.7.0)
   });
 
   it("should not mint to an address not in the allowlist", async function () {
