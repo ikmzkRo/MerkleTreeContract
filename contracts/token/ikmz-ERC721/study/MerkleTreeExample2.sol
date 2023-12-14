@@ -4,7 +4,7 @@ pragma solidity ^0.8.17;
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract MerkleTreeResearch is Ownable {
+contract MerkleTreeExample2 is Ownable {
     // --- PROPERTIES ---- //
 
     // Calculated from `merkleTreeResearch.ts`

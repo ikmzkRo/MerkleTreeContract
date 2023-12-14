@@ -11,7 +11,7 @@ import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 
 
-contract IkmzMerkleProofAuth is ERC1155, Ownable {
+contract MerkleTreeExample3 is ERC1155, Ownable {
     bytes32 merkleRoot;
     using MerkleProof for bytes32[];
     string public name = "Sample";
