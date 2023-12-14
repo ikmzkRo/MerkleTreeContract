@@ -13,6 +13,8 @@
 | ---- | ---- |
 | `yarn run compile` | Explanation |
 | `yarn run test test/token/IkmzERC721WL.test.ts` | Explanation |
+| `yarn run scripts/deploy/token/ikmzERC721WL.ts --network goerli` | deploy ikmzERC721WL contract |
+| `yarn run scripts/deploy/token/ikmzERC721WL.ts --network goerli` | verify ikmzERC721WL contract |
 
 - https://github.com/ikmzkRo/hardhat-contract-demo?tab=readme-ov-file#command-list
 

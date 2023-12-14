@@ -11,3 +11,6 @@ artifacts
 # stash-js
 scripts/deploy/stash-js
 test/stash-js
+
+# other
+memo.md

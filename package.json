@@ -6,7 +6,8 @@
   "scripts": {
     "test": "hardhat test",
     "compile": "hardhat compile",
-    "build-abi": "yarn clean && yarn && hardhat build-abi"
+    "build-abi": "yarn clean && yarn && hardhat build-abi",
+    "deploy-ikmzERC721WL-goerli": "hardhat run scripts/deploy/token/ikmzERC721WL.ts --network goerli"
   },
   "repository": {
     "type": "git",
