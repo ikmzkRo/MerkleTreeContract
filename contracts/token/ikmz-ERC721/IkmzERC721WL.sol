@@ -13,10 +13,12 @@ contract IkmzERC721WL is ERC721URIStorage, Ownable {
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIds;
     bytes32 public merkleRoot;
+    mapping(address => bool) public whitelistClaimed;
 
     constructor() ERC721("whitelist", "WL") {}
 
     function whitelistMint(bytes32[] calldata _merkleProof) public payable returns (uint256) {
+        require(!whitelistClaimed[msg.sender], "Address already claimed");
         bytes32 leaf = keccak256(abi.encodePacked(msg.sender));
         require(
             MerkleProof.verify(_merkleProof, merkleRoot, leaf),
@@ -26,6 +28,9 @@ contract IkmzERC721WL is ERC721URIStorage, Ownable {
         _tokenIds.increment();
         uint256 newTokenId = _tokenIds.current();
         _mint(msg.sender, newTokenId);
+
+        whitelistClaimed[msg.sender] = true;
+        
         return newTokenId;
     }
 
