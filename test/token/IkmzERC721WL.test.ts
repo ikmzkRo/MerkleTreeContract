@@ -73,7 +73,6 @@ describe("Verification of Merkle Proof Authentication using MerkleTree in merkle
   })
 });
 
-
 let IkmzERC721WLFactory: Contract;
 let IkmzERC721WL: Contract;
 let owner: SignerWithAddress;
@@ -118,14 +117,6 @@ beforeEach(async () => {
   rootHash = merkleTree.getRoot();
   rootHashHexString = `0x${rootHash.toString("hex")}`;
 });
-
-
-
-describe("deploy check", () => {
-  // it("Should return default value", async () => {
-  //   expect(await IkmzERC721WL.totalSupply()).to.equal(0);
-  // })
-})
 
 describe("setMerkleRoot check", () => {
   it("[S] Should set the Merkle Root correctly by Owner", async function () {
