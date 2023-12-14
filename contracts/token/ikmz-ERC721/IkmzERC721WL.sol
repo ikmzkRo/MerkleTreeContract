@@ -16,7 +16,7 @@ contract IkmzERC721WL is ERC721URIStorage, Ownable {
 
     constructor() ERC721("whitelist", "WL") {}
 
-    function mint(bytes32[] calldata _merkleProof) public payable returns (uint256) {
+    function whitelistMint(bytes32[] calldata _merkleProof) public payable returns (uint256) {
         bytes32 leaf = keccak256(abi.encodePacked(msg.sender));
         require(
             MerkleProof.verify(_merkleProof, merkleRoot, leaf),
@@ -32,4 +32,9 @@ contract IkmzERC721WL is ERC721URIStorage, Ownable {
     function setMerkleRoot(bytes32 _merkleRoot) public onlyOwner {
         merkleRoot = _merkleRoot;
     }
+
+    function getMerkleRoot() external view returns (bytes32) {
+        return merkleRoot;
+    }
+
 }

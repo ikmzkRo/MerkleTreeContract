@@ -71,7 +71,7 @@ describe("IkmzERC721WL", async function () {
     const allowList = [allowListedUser.address, "0xa2fb2553e57436b455F57270Cc6f56f6dacDA1a5", "0xa2fb2553e57436b455F57270Cc6f56f6dacDA1a4", "0xa2fb2553e57436b455F57270Cc6f56f6dacDA1a3"];
     console.log('allowList', allowList);
 
-    const IkmzERC721WLFactory = await ethers.getContractFactory("MyERC721");
+    const IkmzERC721WLFactory = await ethers.getContractFactory("IkmzERC721WL");
     IkmzERC721WL = await IkmzERC721WLFactory.deploy();
     await IkmzERC721WL.deployed();
 
@@ -102,9 +102,9 @@ describe("IkmzERC721WL", async function () {
 
     // mint 関数の call をテスト
     console.log('hexProof', hexProof);
-    await IkmzERC721WL.connect(allowListedUser).mint(hexProof);
+    await IkmzERC721WL.connect(allowListedUser).whitelistMint(hexProof);
     await expect(
-      IkmzERC721WL.connect(notListedUser).mint(hexProof)
+      IkmzERC721WL.connect(notListedUser).whitelistMint(hexProof)
     ).to.be.revertedWith("Invalid proof");
 
     // mint後の balance をテスト
