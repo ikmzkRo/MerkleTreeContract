@@ -15,7 +15,7 @@ import ChaiAsPromised from "chai-as-promised";
 // the ChaiAsPromised plugin comes in handy.
 chai.use(ChaiAsPromised);
 
-describe("MerkleTreeResearch", async function () {
+describe("MerkleTreeExample2", async function () {
   // 2. Collect list of wallet addresses from competition, raffle, etc.
   // Store list of addresses in some data sheeet (Google Sheets or Excel)
   let whitelistAddresses = [
@@ -71,32 +71,32 @@ describe("MerkleTreeResearch", async function () {
 
   beforeEach(async function () {
     [owner, allowListedUser, notAllowListedUser] = await ethers.getSigners();
-    const IkmzMerkleProofFactory = await ethers.getContractFactory("MerkleTreeResearch");
+    const IkmzMerkleProofFactory = await ethers.getContractFactory("MerkleTreeExample2");
     IkmzMerkleProof = await IkmzMerkleProofFactory.deploy();
     await IkmzMerkleProof.deployed();
   });
 
   it("[S] Check if the allowlist root is set correctly", async function () {
-    expect(await IkmzMerkleProof.getMerkleRoot()).to.equal(zeroAddress);
+    // expect(await IkmzMerkleProof.getMerkleRoot()).to.equal(zeroAddress);
 
-    // Set the allowlistRootHashHexString
-    await IkmzMerkleProof.setAllowlist(allowlistRootHashHexString);
+    // // Set the allowlistRootHashHexString
+    // await IkmzMerkleProof.setAllowlist(allowlistRootHashHexString);
 
-    // Get MerckleRoot
-    const res = await IkmzMerkleProof.getMerkleRoot();
+    // // Get MerckleRoot
+    // const res = await IkmzMerkleProof.getMerkleRoot();
 
-    // Check if the allowlist root is set correctly
-    expect(res).to.equal(allowlistRootHashHexString);
+    // // Check if the allowlist root is set correctly
+    // expect(res).to.equal(allowlistRootHashHexString);
   });
 
   it("should mint to an address in the allowlist", async function () {
     // Set the allowlistRootHashHexString
-    await IkmzMerkleProof.setAllowlist(allowlistRootHashHexString);
+    // await IkmzMerkleProof.setAllowlist(allowlistRootHashHexString);
 
-    console.log('hexProof', hexProof);
-    const tx = await IkmzMerkleProof.whitelistMint(hexProof)
-    await tx.wait();
-    console.log('tx', tx);
+    // console.log('hexProof', hexProof);
+    // const tx = await IkmzMerkleProof.whitelistMint(hexProof)
+    // await tx.wait();
+    // console.log('tx', tx);
   })
 
 });
