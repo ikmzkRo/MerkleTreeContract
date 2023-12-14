@@ -71,6 +71,7 @@ let IkmzERC721WL: Contract;
 let owner: SignerWithAddress;
 let allowListedUser: SignerWithAddress;
 let notListedUser: SignerWithAddress
+// TODO: any 使うな馬鹿者！
 let rootHash: any;
 let hexProof: any;
 
