@@ -74,7 +74,8 @@ let notListedUser: SignerWithAddress
 // TODO: any 使うな馬鹿者！
 let rootHash: any;
 let hexProof: any;
-
+let rootHashHexString: any;
+const zeroAddress = '0x0000000000000000000000000000000000000000000000000000000000000000'
 
 beforeEach(async () => {
   [owner, allowListedUser, notListedUser] = await ethers.getSigners();
@@ -100,6 +101,7 @@ beforeEach(async () => {
   });
   hexProof = merkleTree.getHexProof(keccak256(allowListedUser.address));
   rootHash = merkleTree.getRoot();
+  rootHashHexString = `0x${rootHash.toString("hex")}`
 })
 
 
@@ -109,9 +111,23 @@ describe("deploy check", () => {
   // })
 })
 
+describe("deploy check", () => {
+  it("[S] Check if the allowlist root is set correctly", async function () {
+    expect(await IkmzERC721WL.getMerkleRoot()).to.equal(zeroAddress);
+
+    // Set the allowlistRootHashHexString
+    await IkmzERC721WL
+      .connect(owner)
+      .setMerkleRoot(`0x${rootHash.toString("hex")}`);
+
+    // Check if the allowlist root is set correctly
+    expect(await IkmzERC721WL.getMerkleRoot()).to.equal(rootHashHexString);
+  });
+})
+
+
 
 it("mint", async () => {
-
 
   await IkmzERC721WL
     .connect(owner)
