@@ -14,9 +14,12 @@ contract MyERC721 is ERC721URIStorage, Ownable {
     Counters.Counter private _tokenIds;
     bytes32 public merkleRoot;
 
+    mapping(address => bool) public whitelistClaimed;
+
     constructor() ERC721("MyERC721", "MY721") {}
 
     function mint(bytes32[] calldata _merkleProof) public payable returns (uint256) {
+        require(!whitelistClaimed[msg.sender], "Address already claimed");
         bytes32 leaf = keccak256(abi.encodePacked(msg.sender));
         require(
             MerkleProof.verify(_merkleProof, merkleRoot, leaf),
@@ -26,6 +29,9 @@ contract MyERC721 is ERC721URIStorage, Ownable {
         _tokenIds.increment();
         uint256 newTokenId = _tokenIds.current();
         _mint(msg.sender, newTokenId);
+        
+        whitelistClaimed[msg.sender] = true;
+
         return newTokenId;
     }
 
