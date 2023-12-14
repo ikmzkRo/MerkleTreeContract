@@ -3,12 +3,10 @@
 require("@nomiclabs/hardhat-waffle");
 require("dotenv").config();
 require("@nomiclabs/hardhat-etherscan");
+import { HardhatUserConfig, task } from "hardhat/config";
 import "hardhat-gas-reporter";
 
-/**
- * @type import('hardhat/config').HardhatUserConfig
- */
-module.exports = {
+const config: HardhatUserConfig = {
   solidity: {
     version: "0.8.17",
     settings: {
@@ -37,3 +35,5 @@ module.exports = {
     // outputFile: "./test/research/data/gas-report.csv",
   },
 };
+
+export default config;
