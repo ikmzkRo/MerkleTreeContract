@@ -10,7 +10,7 @@ import "hardhat-gas-reporter";
  */
 module.exports = {
   solidity: {
-    version: "0.8.9",
+    version: "0.8.17",
     settings: {
       // コードサイズを最適化
       optimizer: {

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.9; // compiler version
+pragma solidity ^0.8.17; // compiler version
 
 // ERC721規格にない設定をOZから継承します
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";

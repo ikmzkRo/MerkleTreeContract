@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.9;
+pragma solidity ^0.8.17;
 
 // ref
 // https://zenn.dev/rlho/articles/2193884e3f4b9d#smart-contract

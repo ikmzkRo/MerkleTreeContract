@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.9;
+pragma solidity ^0.8.17;
 
 // https://zenn.dev/ryo_takahashi/articles/d4bdc137b564db
 // TODO: https://note.com/yutaronagumo/n/nf6dd5bad47f4#f96e02b6-d51c-4c11-963e-6e0f68fbf887
