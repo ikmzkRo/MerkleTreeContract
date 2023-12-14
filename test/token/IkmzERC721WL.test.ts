@@ -32,7 +32,6 @@ describe("Verification of Merkle Proof Authentication using MerkleTree in merkle
       "0XCC4C29997177253376528C05D3DF91CF2D69061A",
       "0xdD870fA1b7C4700F2BD7f44238821C26f7392148" // The address in remix
     ];
-    console.log('whitelistAddresses', whitelistAddresses);
 
     // 3. Create a new array of `leafNodes` by hashing all indexes of the `whitelistAddresses`
     // using `keccak256`. Then creates a Merkle Tree object using keccak256 as the algorithm.
@@ -53,7 +52,6 @@ describe("Verification of Merkle Proof Authentication using MerkleTree in merkle
 
     // 5. Convert Buffer to hex string with '0x' prefix
     const allowlistRootHashHexString = "0x" + allowlistRootHash.toString("hex");
-    console.log('allowlistRootHashHexString', allowlistRootHashHexString);
 
     // 6. Choose claiming address from whitelist
     const claimingAddress = leafNodes[6];
@@ -111,56 +109,60 @@ describe("deploy check", () => {
   // })
 })
 
-describe("deploy check", () => {
-  it("[S] Check if the allowlist root is set correctly", async function () {
+describe("setMerkleRoot check", () => {
+  it("[S] Check if the rootHashHexString is set correctly by Owner", async function () {
     expect(await IkmzERC721WL.getMerkleRoot()).to.equal(zeroAddress);
 
     // Set the allowlistRootHashHexString
-    await IkmzERC721WL
-      .connect(owner)
-      .setMerkleRoot(`0x${rootHash.toString("hex")}`);
+    await
+      IkmzERC721WL
+        .connect(owner)
+        .setMerkleRoot(rootHashHexString)
 
     // Check if the allowlist root is set correctly
     expect(await IkmzERC721WL.getMerkleRoot()).to.equal(rootHashHexString);
   });
+
+  it("[R] Check if the rootHashHexString can not set by notOwner", async function () {
+    await expect(
+      IkmzERC721WL
+        .connect(notListedUser)
+        .setMerkleRoot(rootHashHexString)
+    ).to.be.revertedWith("Ownable: caller is not the owner");
+  });
 })
 
 
+describe("whitelistMint check", () => {
+  it("[S] whitelistMint", async () => {
 
-it("mint", async () => {
+    // 現状の balance をテスト
+    expect(await IkmzERC721WL.balanceOf(allowListedUser.address)).to.be.equal(
+      BigInt(0)
+    );
+    expect(await IkmzERC721WL.balanceOf(notListedUser.address)).to.be.equal(
+      BigInt(0)
+    );
 
-  await IkmzERC721WL
-    .connect(owner)
-    .setMerkleRoot(`0x${rootHash.toString("hex")}`);
+    // mint 関数の call をテスト
+    await
+      IkmzERC721WL
+        .connect(owner)
+        .setMerkleRoot(rootHashHexString)
 
-  // setMerkleRoot が onlyOwner であるテスト
-  await expect(
-    IkmzERC721WL
-      .connect(notListedUser)
-      .setMerkleRoot(`0x${rootHash.toString("hex")}`)
-  ).to.be.revertedWith("Ownable: caller is not the owner");
+    await IkmzERC721WL.connect(allowListedUser).whitelistMint(hexProof);
+    await expect(
+      IkmzERC721WL.connect(notListedUser).whitelistMint(hexProof)
+    ).to.be.revertedWith("Invalid proof");
 
-  // 現状の balance をテスト
-  expect(await IkmzERC721WL.balanceOf(allowListedUser.address)).to.be.equal(
-    BigInt(0)
-  );
-  expect(await IkmzERC721WL.balanceOf(notListedUser.address)).to.be.equal(
-    BigInt(0)
-  );
+    // mint後の balance をテスト
+    expect(await IkmzERC721WL.balanceOf(allowListedUser.address)).to.be.equal(
+      BigInt(1)
+    );
+    expect(await IkmzERC721WL.balanceOf(notListedUser.address)).to.be.equal(
+      BigInt(0)
+    );
 
-  // mint 関数の call をテスト
-  console.log('hexProof', hexProof);
-  await IkmzERC721WL.connect(allowListedUser).whitelistMint(hexProof);
-  await expect(
-    IkmzERC721WL.connect(notListedUser).whitelistMint(hexProof)
-  ).to.be.revertedWith("Invalid proof");
+  });
 
-  // mint後の balance をテスト
-  expect(await IkmzERC721WL.balanceOf(allowListedUser.address)).to.be.equal(
-    BigInt(1)
-  );
-  expect(await IkmzERC721WL.balanceOf(notListedUser.address)).to.be.equal(
-    BigInt(0)
-  );
-
-});
+})
