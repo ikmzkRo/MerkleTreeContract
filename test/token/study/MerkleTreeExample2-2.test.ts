@@ -27,6 +27,7 @@ describe("MerkleTreeExample2", async function () {
     "0XCC4C29997177253376528C05D3DF91CF2D69061A",
     "0xa2fb2553e57436b455F57270Cc6f56f6dacDA1a5" // The address in remix
   ];
+  console.log('whitelistAddresses', whitelistAddresses);
 
   // 3. Create a new array of `leafNodes` by hashing all indexes of the `whitelistAddresses`
   // using `keccak256`. Then creates a Merkle Tree object using keccak256 as the algorithm.
@@ -52,7 +53,6 @@ describe("MerkleTreeExample2", async function () {
   // Choose claiming address from whitelist
   const claimingAddress = leafNodes[6];
   const hexProof = merkleTree.getHexProof(claimingAddress);
-  console.log(hexProof);
 
   console.log('hexProof, claimingAddress, allowlistRootHash', hexProof, claimingAddress, allowlistRootHash);
   console.log(merkleTree.verify(hexProof, claimingAddress, allowlistRootHash));
@@ -77,26 +77,40 @@ describe("MerkleTreeExample2", async function () {
   });
 
   it("[S] Check if the allowlist root is set correctly", async function () {
-    // expect(await IkmzMerkleProof.getMerkleRoot()).to.equal(zeroAddress);
+    expect(await IkmzMerkleProof.getMerkleRoot()).to.equal(zeroAddress);
 
-    // // Set the allowlistRootHashHexString
-    // await IkmzMerkleProof.setAllowlist(allowlistRootHashHexString);
+    // Set the allowlistRootHashHexString
+    await IkmzMerkleProof.setAllowlist(allowlistRootHashHexString);
 
-    // // Get MerckleRoot
-    // const res = await IkmzMerkleProof.getMerkleRoot();
+    // Get MerckleRoot
+    const res = await IkmzMerkleProof.getMerkleRoot();
 
-    // // Check if the allowlist root is set correctly
-    // expect(res).to.equal(allowlistRootHashHexString);
+    // Check if the allowlist root is set correctly
+    expect(res).to.equal(allowlistRootHashHexString);
   });
 
-  it("should mint to an address in the allowlist", async function () {
+  it("[S] Should mint to an address in the allowlist", async function () {
     // Set the allowlistRootHashHexString
-    // await IkmzMerkleProof.setAllowlist(allowlistRootHashHexString);
+    await IkmzMerkleProof.setAllowlist(allowlistRootHashHexString);
 
-    // console.log('hexProof', hexProof);
-    // const tx = await IkmzMerkleProof.whitelistMint(hexProof)
+    console.log('hexProof', hexProof);
+
+    const hexProofdoublequote: string[] = hexProof.map(item => item.replace(/'/g, '"'));
+    console.log('hexProofdoublequote', hexProofdoublequote);
+
+    // TODO: Error: VM Exception while processing transaction: reverted with reason string 'Invalid Merkle Proof.'
+    // const tx = await IkmzMerkleProof.whitelistMint(hexProofdoublequote)
     // await tx.wait();
     // console.log('tx', tx);
+
+    // hexProof[
+    //   '0x702d0f86c1baf15ac2b8aae489113b59d27419b751fbf7da0ef0bae4688abc7a',
+    //   '0xb159efe4c3ee94e91cc5740b9dbb26fc5ef48a14b53ad84d591d0eb3d65891ab'
+    // ]
+    // hexProofdoublequote[
+    //   '0x702d0f86c1baf15ac2b8aae489113b59d27419b751fbf7da0ef0bae4688abc7a',
+    //   '0xb159efe4c3ee94e91cc5740b9dbb26fc5ef48a14b53ad84d591d0eb3d65891ab'
+    // ]
   })
 
 });
