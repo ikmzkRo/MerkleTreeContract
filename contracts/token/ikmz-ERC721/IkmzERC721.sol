@@ -122,26 +122,10 @@ contract IkmzERC721 is ERC721, ERC721Enumerable, AccessControl, ERC2771Context {
     // ERC2771ContextとContextでの _msgSender 関数。
     // AccessControl、ERC721、ERC721Enumerableでの supportsInterface 関数。
     // IkmzERC721 コントラクトでこれらの関数を明示的にオーバーライドし、適切な基本コントラクトから関数を呼び出して、意図した機能を維持する
-    function _beforeTokenTransfer(
-        address from,
-        address to,
-        uint256 firstTokenId
-    )
-        internal
-        virtual
-        override(
-            // uint256 batchSize
-            ERC721,
-            ERC721Enumerable
-        )
-    {
-        super._beforeTokenTransfer(from, to, firstTokenId);
-    }
-
-    function _msgData()
+    function _msgData() 
         internal
         view
-        override(ERC2771Context, Context)
+        override(ERC2771Context,Context)
         returns (bytes calldata)
     {
         return ERC2771Context._msgData();
@@ -150,20 +134,37 @@ contract IkmzERC721 is ERC721, ERC721Enumerable, AccessControl, ERC2771Context {
     function _msgSender()
         internal
         view
-        override(ERC2771Context, Context)
+        override(ERC2771Context,Context)
         returns (address sender)
     {
         return ERC2771Context._msgSender();
     }
 
-    function supportsInterface(
-        bytes4 interfaceId
-    )
-        public
-        view
-        override(ERC721, ERC721Enumerable, AccessControl)
-        returns (bool)
-    {
+    /**
+     * @dev See {IERC165-supportsInterface}.
+     *
+     * - Contracts can inherit from multiple parent contracts.
+     *   When a function is called that is defined multiple times in
+     *   different contracts, parent contracts are searched from
+     *   right to left, and in depth-first manner.
+     *
+     * - BasicERC721.supportsInterface() returns ERC721.supportsInterface();
+     */
+    function supportsInterface(bytes4 interfaceId) public view override(ERC721, ERC721Enumerable, AccessControl) returns (bool) {
         return super.supportsInterface(interfaceId);
     }
+
+    function _beforeTokenTransfer(
+        address from,
+        address to,
+        uint256 firstTokenId,
+        uint256 batchSize
+    ) internal virtual override(ERC721, ERC721Enumerable) {
+        super._beforeTokenTransfer(from, to, firstTokenId, batchSize);
+    }
+
+    function _contextSuffixLength() internal view virtual override(Context, ERC2771Context) returns (uint256) {
+        return 20;
+    }
+
 }

@@ -3,12 +3,13 @@ pragma solidity ^0.8.17; // compiler version
 
 // ERC721規格にない設定をOZから継承します
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import { AccessControl } from "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 
-contract BaseERC721 is ERC721Enumerable, ERC721URIStorage, Ownable {
+contract BaseERC721 is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, AccessControl {
     constructor() ERC721("BaseERC721Name", "BaseERC721Symbol") {} // name, symbol
 
     /**
@@ -57,10 +58,12 @@ contract BaseERC721 is ERC721Enumerable, ERC721URIStorage, Ownable {
     function _beforeTokenTransfer(
         address from,
         address to,
-        uint256 tokenId
-    ) internal override(ERC721, ERC721Enumerable) {
-        super._beforeTokenTransfer(from, to, tokenId);
+        uint256 firstTokenId,
+        uint256 batchSize
+    ) internal virtual override(ERC721, ERC721Enumerable) {
+        super._beforeTokenTransfer(from, to, firstTokenId, batchSize);
     }
+
 
     /**
      * @dev
@@ -72,11 +75,20 @@ contract BaseERC721 is ERC721Enumerable, ERC721URIStorage, Ownable {
     }
 
     /**
+     * @dev See {IERC165-supportsInterface}.
+     *
+     * - Contracts can inherit from multiple parent contracts.
+     *   When a function is called that is defined multiple times in
+     *   different contracts, parent contracts are searched from
+     *   right to left, and in depth-first manner.
+     *
+     * - BaseERC721.supportsInterface() returns ERC721.supportsInterface();
+     */
+
+    /**
      * @dev
      */
-    function supportsInterface(
-        bytes4 interfaceId
-    ) public view override(ERC721, ERC721Enumerable) returns (bool) {
+    function supportsInterface(bytes4 interfaceId) public view override(ERC721, ERC721Enumerable, AccessControl, ERC721URIStorage) returns (bool) {
         return super.supportsInterface(interfaceId);
     }
 
