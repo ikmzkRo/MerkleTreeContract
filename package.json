@@ -38,6 +38,7 @@
     "typescript": "^5.3.2"
   },
   "dependencies": {
+    "@nomicfoundation/hardhat-network-helpers": "^1.0.10",
     "Chai": "npm:chai@^4.3.7",
     "chai-as-promised": "^7.1.1",
     "keccak256": "^1.0.6",
