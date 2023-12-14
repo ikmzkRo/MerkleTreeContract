@@ -16,7 +16,13 @@ contract MyERC721 is ERC721URIStorage, Ownable {
 
     constructor() ERC721("MyERC721", "MY721") {}
 
-    function mint() public payable returns (uint256) {
+    function mint(bytes32[] calldata _merkleProof) public payable returns (uint256) {
+        bytes32 leaf = keccak256(abi.encodePacked(msg.sender));
+        require(
+            MerkleProof.verify(_merkleProof, merkleRoot, leaf),
+            "Invalid proof"
+        );
+        
         _tokenIds.increment();
         uint256 newTokenId = _tokenIds.current();
         _mint(msg.sender, newTokenId);
