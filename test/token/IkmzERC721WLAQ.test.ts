@@ -31,11 +31,6 @@ beforeEach(async () => {
   // 一般的には、getSigners()で返される配列の最初の署名者が、スマートコントラクトをデプロイしたアカウント、つまりowner権限を持つこととなります
   [owner, notOwner, allowListedUser, notListedUser] = await ethers.getSigners();
 
-  // Deploy the IkmzERC721WLAQ contract
-  IkmzERC721WLAQFactory = await ethers.getContractFactory("IkmzERC721WLAQ");
-  IkmzERC721WLAQ = await IkmzERC721WLAQFactory.deploy("0xcd1ce05417f11ebd5c23784283d21a968ac750e5ac2c2baa6b82835f4ea7caf7");
-  await IkmzERC721WLAQ.deployed();
-
   // Define the Merkle Tree for whitelist verification
   const inputs = [
     {
@@ -69,6 +64,7 @@ beforeEach(async () => {
   //     └─ d0583fe73ce94e513e73539afcb4db4c1ed1834a418c3f0ef2d5cff7c8bb1dee
 
   hexProof = leaves.map(leaf => tree.getHexProof(leaf))
+  console.log('hexProof', hexProof);
   // hexProof[
   //   [
   //     '0xb783e75c6c50486379cdb997f72be5bb2b6faae5b2251999cae874bc1b040af7',
@@ -84,7 +80,12 @@ beforeEach(async () => {
   // ]
 
   rootHashHexString = tree.getHexRoot();
-  // 0xcd1ce05417f11ebd5c23784283d21a968ac750e5ac2c2baa6b82835f4ea7caf7
+  console.log('rootHashHexString', rootHashHexString);
+
+  // Deploy the IkmzERC721WLAQ contract
+  IkmzERC721WLAQFactory = await ethers.getContractFactory("IkmzERC721WLAQ");
+  IkmzERC721WLAQ = await IkmzERC721WLAQFactory.deploy(rootHashHexString);
+  await IkmzERC721WLAQ.deployed();
 });
 
 describe("setMerkleRoot check", () => {
@@ -114,7 +115,7 @@ describe("whitelistMint check", () => {
     expect(await IkmzERC721WLAQ.getMerkleRoot()).to.equal(rootHashHexString);
 
     console.log(' hexProof[0]', hexProof[0]);
-    await IkmzERC721WLAQ.connect(allowListedUser).whitelistMint(2, hexProof[0]);
+    await IkmzERC721WLAQ.connect(allowListedUser).whitelistMint(1, hexProof[0]);
 
     // // Test the balance after minting
     // expect(await IkmzERC721WLAQ.balanceOf(allowListedUser.address)).to.be.equal(BigInt(1));
