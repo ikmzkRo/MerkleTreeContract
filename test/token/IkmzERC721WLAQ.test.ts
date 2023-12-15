@@ -30,60 +30,53 @@ let rootHashHexString: any;
 const zeroAddress = '0x0000000000000000000000000000000000000000000000000000000000000000'
 const dummyMerkleRoot = "0x3e35b61278fbcec3f3b0bb361d928e373e089a61758af09690ce0a5391078ff2"
 
-// beforeEach(async () => {
-//   // Deploy the IkmzERC721WLAQ contract
-//   IkmzERC721WLAQFactory = await ethers.getContractFactory("IkmzERC721WLAQ");
-//   IkmzERC721WLAQ = await IkmzERC721WLAQFactory.deploy(rootHashHexString);
-//   await IkmzERC721WLAQ.deployed();
-// });
+beforeEach(async () => {
+  // Obtain Ethereum signers for various roles: owner, allowListedUser, notListedUser
+  const signers = await ethers.getSigners();
 
+  // Define the Merkle Tree for whitelist verification
+  const inputs = [
+    {
+      address: signers[1].address,
+      quantity: 1,
+    },
+    {
+      address: signers[2].address,
+      quantity: 2,
+    },
+    {
+      address: signers[3].address,
+      quantity: 1,
+    },
+    {
+      address: "0xa2fb2553e57436b455F57270Cc6f56f6dacDA1a5",
+      quantity: 2,
+    }
+  ];
 
-describe("setMerkleRoot check", () => {
-  it("[S] test", async function () {
-    // Obtain Ethereum signers for various roles: owner, allowListedUser, notListedUser
-    const signers = await ethers.getSigners();
+  // create leaves from inputs
+  const leaves = inputs.map((x) =>
+    ethers.utils.solidityKeccak256(
+      ['address', 'uint256'],
+      [x.address, x.quantity]
+    )
+  );
 
-    // Define the Merkle Tree for whitelist verification
-    const inputs = [
-      {
-        address: signers[1].address,
-        quantity: 1,
-      },
-      {
-        address: signers[2].address,
-        quantity: 2,
-      },
-      {
-        address: signers[3].address,
-        quantity: 1,
-      },
-      {
-        address: "0xa2fb2553e57436b455F57270Cc6f56f6dacDA1a5",
-        quantity: 2,
-      }
-    ];
+  // create a Merkle Tree using keccak256 hash function
+  const tree = new MerkleTree(leaves, keccak256, { sort: true });
 
-    // create leaves from inputs
-    const leaves = inputs.map((x) =>
-      ethers.utils.solidityKeccak256(
-        ['address', 'uint256'],
-        [x.address, x.quantity]
-      )
-    );
+  // get the root
+  const root = tree.getHexRoot();
 
-    // create a Merkle Tree using keccak256 hash function
-    const tree = new MerkleTree(leaves, keccak256, { sort: true });
+  const proofs = leaves.map((leaf) => tree.getHexProof(leaf));
+  console.log('proofs', proofs);
+  console.log('root', root);
 
-    // get the root
-    const root = tree.getHexRoot();
-
-    const proofs = leaves.map((leaf) => tree.getHexProof(leaf));
-    console.log('proofs', proofs);
-    console.log('root', root);
-  })
-})
-
-
+  // Deploy the IkmzERC721WLAQ contract
+  IkmzERC721WLAQFactory = await ethers.getContractFactory("IkmzERC721WLAQ");
+  IkmzERC721WLAQ = await IkmzERC721WLAQFactory.deploy(root);
+  await IkmzERC721WLAQ.deployed();
+});
 
 
 // describe("setMerkleRoot check", () => {
