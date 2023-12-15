@@ -28,7 +28,7 @@ let rootHash: any;
 let hexProof: any;
 let rootHashHexString: any;
 const zeroAddress = '0x0000000000000000000000000000000000000000000000000000000000000000'
-
+const dummyMerkleRoot = "0x3e35b61278fbcec3f3b0bb361d928e373e089a61758af09690ce0a5391078ff2"
 
 describe("Verification of Merkle Proof Authentication using MerkleTree in merkletreejs.", function () {
   it("[S] Verification of Merkle Proof Authentication ", async () => {
@@ -120,27 +120,32 @@ beforeEach(async () => {
   await IkmzERC721WLAQ.deployed();
 });
 
-// describe("setMerkleRoot check", () => {
-//   it("[S] Should set the Merkle Root correctly by Owner", async function () {
-//     // Ensure that the initial Merkle Root is set to the zero address
-//     expect(await IkmzERC721WLAQ.getMerkleRoot()).to.equal(zeroAddress);
+describe("setMerkleRoot check", () => {
+  it("[S] Should set the Merkle Root correctly by Owner", async function () {
+    // Ensure that the initial Merkle Root is set correctly
+    expect(await IkmzERC721WLAQ.getMerkleRoot()).to.equal(rootHashHexString);
+  });
 
-//     // Set the Merkle Root by the owner
-//     await IkmzERC721WLAQ.connect(owner).setMerkleRoot(rootHashHexString);
+  it("[R] Should allow setting Merkle Root by owner", async function () {
+    // Attempt to set the Merkle Root by a non-owner
+    await IkmzERC721WLAQ
+      .connect(owner)
+      .setMerkleRoot(dummyMerkleRoot);
+    // Ensure that the second Merkle Root is set correctly
+    expect(await IkmzERC721WLAQ.getMerkleRoot()).to.equal(dummyMerkleRoot);
+  });
 
-//     // Verify if the Merkle Root is set correctly
-//     expect(await IkmzERC721WLAQ.getMerkleRoot()).to.equal(rootHashHexString);
-//   });
-
-//   it("[R] Should not allow setting Merkle Root by non-owner", async function () {
-//     // Attempt to set the Merkle Root by a non-owner
-//     await expect(
-//       IkmzERC721WLAQ
-//         .connect(notListedUser)
-//         .setMerkleRoot(rootHashHexString)
-//     ).to.be.revertedWith("Ownable: caller is not the owner");
-//   });
-// });
+  it("[R] Should not allow setting Merkle Root by non-owner", async function () {
+    // Attempt to set the Merkle Root by a non-owner
+    await expect(
+      IkmzERC721WLAQ
+        .connect(notListedUser)
+        .setMerkleRoot(dummyMerkleRoot)
+    ).to.be.revertedWith("Ownable: caller is not the owner");
+    // Ensure that the initial Merkle Root is set correctly
+    expect(await IkmzERC721WLAQ.getMerkleRoot()).to.equal(rootHashHexString);
+  });
+});
 
 // describe("whitelistMint check", () => {
 //   it("[S] Should successfully perform whitelistMint", async () => {
