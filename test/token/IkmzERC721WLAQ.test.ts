@@ -17,6 +17,7 @@ chai.use(ChaiAsPromised);
 let IkmzERC721WLFactory: Contract;
 let IkmzERC721WL: Contract;
 let owner: SignerWithAddress;
+let notOwner: SignerWithAddress;
 let allowListedUser: SignerWithAddress;
 let notListedUser: SignerWithAddress
 // TODO: any 使うな馬鹿者！
@@ -28,7 +29,7 @@ const zeroAddress = '0x000000000000000000000000000000000000000000000000000000000
 
 beforeEach(async () => {
   // 一般的には、getSigners()で返される配列の最初の署名者が、スマートコントラクトをデプロイしたアカウント、つまりowner権限を持つこととなります
-  [owner, allowListedUser, notListedUser] = await ethers.getSigners();
+  [owner, notOwner, allowListedUser, notListedUser] = await ethers.getSigners();
 
   // Deploy the IkmzERC721WL contract
   IkmzERC721WLFactory = await ethers.getContractFactory("IkmzERC721WL");
@@ -98,14 +99,14 @@ describe("setMerkleRoot check", () => {
     expect(await IkmzERC721WL.getMerkleRoot()).to.equal(rootHashHexString);
   });
 
-  // it("[R] Should not allow setting Merkle Root by non-owner", async function () {
-  //   // Attempt to set the Merkle Root by a non-owner
-  //   await expect(
-  //     IkmzERC721WL
-  //       .connect(notListedUser)
-  //       .setMerkleRoot(rootHashHexString)
-  //   ).to.be.revertedWith("Ownable: caller is not the owner");
-  // });
+  it("[R] Should not allow setting Merkle Root by notOwner", async function () {
+    // Attempt to set the Merkle Root by a notOwner
+    await expect(
+      IkmzERC721WL
+        .connect(notOwner)
+        .setMerkleRoot(rootHashHexString)
+    ).to.be.revertedWith("Ownable: caller is not the owner");
+  });
 });
 
 // describe("whitelistMint check", () => {
