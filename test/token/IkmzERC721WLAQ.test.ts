@@ -126,7 +126,7 @@ describe("setMerkleRoot check", () => {
     expect(await IkmzERC721WLAQ.getMerkleRoot()).to.equal(rootHashHexString);
   });
 
-  it("[R] Should allow setting Merkle Root by owner", async function () {
+  it("[S] Should allow setting Merkle Root by owner", async function () {
     // Attempt to set the Merkle Root by a non-owner
     await IkmzERC721WLAQ
       .connect(owner)
@@ -147,23 +147,23 @@ describe("setMerkleRoot check", () => {
   });
 });
 
-// describe("whitelistMint check", () => {
-//   it("[S] Should successfully perform whitelistMint", async () => {
-//     // Test the current balance of allowListedUser and notListedUser
-//     expect(await IkmzERC721WLAQ.balanceOf(allowListedUser.address)).to.be.equal(BigInt(0));
-//     expect(await IkmzERC721WLAQ.balanceOf(notListedUser.address)).to.be.equal(BigInt(0));
+describe("whitelistMint check", () => {
+  it("[S] Should successfully perform whitelistMint", async () => {
+    // Test the current balance of allowListedUser and notListedUser
+    expect(await IkmzERC721WLAQ.balanceOf(allowListedUser.address)).to.be.equal(BigInt(0));
+    expect(await IkmzERC721WLAQ.balanceOf(notListedUser.address)).to.be.equal(BigInt(0));
 
-//     // Test the mint function call after setting the Merkle Root
-//     await IkmzERC721WLAQ.connect(owner).setMerkleRoot(rootHashHexString);
-//     await IkmzERC721WLAQ.connect(allowListedUser).whitelistMint(hexProof);
+    // Test the mint function call after confirming the Merkle Root
+    expect(await IkmzERC721WLAQ.getMerkleRoot()).to.equal(rootHashHexString);
+    await IkmzERC721WLAQ.connect(allowListedUser).whitelistMint(2, hexProof);
 
-//     // Test the balance after minting
-//     expect(await IkmzERC721WLAQ.balanceOf(allowListedUser.address)).to.be.equal(BigInt(1));
-//     expect(await IkmzERC721WLAQ.balanceOf(notListedUser.address)).to.be.equal(BigInt(0));
+    // Test the balance after minting
+    expect(await IkmzERC721WLAQ.balanceOf(allowListedUser.address)).to.be.equal(BigInt(2));
+    expect(await IkmzERC721WLAQ.balanceOf(notListedUser.address)).to.be.equal(BigInt(0));
 
-//     // Ensure that non-listed user cannot mint with an invalid proof
-//     await expect(
-//       IkmzERC721WLAQ.connect(notListedUser).whitelistMint(hexProof)
-//     ).to.be.revertedWith("Invalid proof");
-//   });
-// });
+    // Ensure that non-listed user cannot mint with an invalid proof
+    await expect(
+      IkmzERC721WLAQ.connect(notListedUser).whitelistMint(2, hexProof)
+    ).to.be.revertedWith("Invalid proof");
+  });
+});
