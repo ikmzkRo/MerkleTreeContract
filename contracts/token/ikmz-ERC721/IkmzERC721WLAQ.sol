@@ -23,22 +23,19 @@ contract IkmzERC721WLAQ is ERC721, Ownable {
     }
 
     function whitelistMint(uint256 quantity, bytes32[] calldata merkleProof) public {
-        require(!whitelistClaimed[msg.sender], "Address already claimed");
+        // require(!whitelistClaimed[msg.sender], "Address already claimed");
 
-        bytes32 node = keccak256(abi.encodePacked(msg.sender));
-        require(
-            MerkleProof.verify(merkleProof, merkleRoot, node),
-            "Invalid proof"
-        );
+        bytes32 node = keccak256(abi.encodePacked(msg.sender, quantity));
+        require(MerkleProof.verify(merkleProof, merkleRoot, node), 'invalid proof');
 
         for (uint256 i = 0; i < quantity; i++) {
             uint256 tokenId = _tokenIds.current();
             _mint(msg.sender, tokenId);
 
-            _tokenIds.increment();   
+            _tokenIds.increment();
         }
 
-        whitelistClaimed[msg.sender] = true;
+        // whitelistClaimed[msg.sender] = true;
     }
 
     function setMerkleRoot(bytes32 _merkleRoot) public onlyOwner {

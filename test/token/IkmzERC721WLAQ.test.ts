@@ -1,178 +1,109 @@
-import { loadFixture } from '@nomicfoundation/hardhat-network-helpers';
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
 import { Contract } from "ethers";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
+// ***** ***** ***** ***** ***** ***** ***** ***** // 
+// yarn run test test/token/IkmzERC721WL.test.ts
+// ***** ***** ***** ***** ***** ***** ***** ***** // 
+
+// 1. Import libraries. Use `npm` package manager to install
 const { MerkleTree } = require('merkletreejs');
 const keccak256 = require('keccak256');
-import { makeMerkleTree } from '../../scripts/utils/merkletree';
-import { makeSigners } from '../../scripts/utils/data';
 
+// Typically, Chai is used for synchronous tests, 
+// but when dealing with asynchronous operations such as testing Ethereum smart contracts,
+// the ChaiAsPromised plugin comes in handy.
 import chai from "chai";
 import ChaiAsPromised from "chai-as-promised";
 chai.use(ChaiAsPromised);
 
-let IkmzERC721WLAQFactory: Contract;
-let IkmzERC721WLAQ: Contract;
+let IkmzERC721WLFactory: Contract;
+let IkmzERC721WL: Contract;
 let owner: SignerWithAddress;
 let allowListedUser: SignerWithAddress;
 let notListedUser: SignerWithAddress
+// TODO: any 使うな馬鹿者！
 let rootHash: any;
 let hexProof: any;
 let rootHashHexString: any;
 const zeroAddress = '0x0000000000000000000000000000000000000000000000000000000000000000'
-const dummyMerkleRoot = "0x3e35b61278fbcec3f3b0bb361d928e373e089a61758af09690ce0a5391078ff2"
 
+beforeEach(async () => {
+  // Obtain Ethereum signers for various roles: owner, allowListedUser, notListedUser
+  // 一般的には、getSigners()で返される配列の最初の署名者が、スマートコントラクトをデプロイしたアカウント、つまりowner権限を持つこととなります
+  [owner, allowListedUser, notListedUser] = await ethers.getSigners();
 
-// ***** ***** ***** ***** ***** ***** ***** ***** // 
-// yarn run test test/token/IkmzERC721WLAQ.test.ts
-// ***** ***** ***** ***** ***** ***** ***** ***** // 
+  // Deploy the IkmzERC721WL contract
+  IkmzERC721WLFactory = await ethers.getContractFactory("IkmzERC721WL");
+  IkmzERC721WL = await IkmzERC721WLFactory.deploy();
+  await IkmzERC721WL.deployed();
 
-describe('IkmzERC721WLAQ', function () {
-  async function createTestFixture() {
-    const merkleTreeData = await makeMerkleTree();
-    const { root } = merkleTreeData;
+  // Define the Merkle Tree for whitelist verification
+  const allowList = [
+    allowListedUser.address,
+    "0X5B38DA6A701C568545DCFCB03FCB875F56BEDDC4",
+    "0X5A641E5FB72A2FD9137312E7694D42996D689D99",
+    "0XDCAB482177A592E424D1C8318A464FC922E8DE40",
+    "0X6E21D37E07A6F7E53C7ACE372CEC63D4AE4B6BD0",
+    "0X09BAAB19FC77C19898140DADD30C4685C597620B",
+    "0XCC4C29997177253376528C05D3DF91CF2D69061A",
+    "0xdD870fA1b7C4700F2BD7f44238821C26f7392148"
+  ];
 
-    const signers = await makeSigners();
-
-    IkmzERC721WLAQFactory = await ethers.getContractFactory("IkmzERC721WLAQ");
-
-    IkmzERC721WLAQ = await IkmzERC721WLAQFactory.deploy(root);
-
-    await IkmzERC721WLAQ.deployed();
-
-    return { IkmzERC721WLAQ, merkleTreeData, signers };
-  }
-
-  beforeEach(async function () {
-    const { IkmzERC721WLAQ, signers, merkleTreeData } = await loadFixture(
-      createTestFixture
-    );
-    this.IkmzERC721WLAQ = IkmzERC721WLAQ;
-    this.signers = signers;
-    this.merkleTreeData = merkleTreeData;
+  // Create a Merkle Tree using Ethereum addresses and Keccak-256 hashing
+  const merkleTree = new MerkleTree(allowList.map(keccak256), keccak256, {
+    sortPairs: true,
   });
 
-  describe('Deployment', function () {
-    it('Should return correct name and symbol', async function () {
-      expect(await this.IkmzERC721WLAQ.name()).to.equal(
-        'zuyomayo'
-      );
-      expect(await this.IkmzERC721WLAQ.symbol()).to.equal('ZTMY');
-      expect(await this.IkmzERC721WLAQ.getMerkleRoot()).to.equal(this.merkleTreeData.root);
-    });
-  });
+  // Obtain the Hex Proof for the address of the allowListedUser
+  hexProof = merkleTree.getHexProof(keccak256(allowListedUser.address));
 
-  describe('whitelistMint', function () {
-    beforeEach(async function () {
-      [owner, allowListedUser, notListedUser] = await ethers.getSigners();
-      await this.IkmzERC721WLAQ
-        .connect(owner)
-        .whitelistMint(1, this.merkleTreeData.proofs[2]);
-    });
-
-    it('Should allow whitelisted users to mint', async function () {
-      // const aliceBalance = await this.IkmzERC721WLAQ.balanceOf(
-      //   await this.users.alice.getAddress()
-      // );
-
-      // expect(aliceBalance).to.equal(1);
-
-      // const bobBalance = await this.IkmzERC721WLAQ.balanceOf(
-      //   await this.users.bob.getAddress()
-      // );
-
-      // expect(bobBalance).to.equal(2);
-    });
-
-  })
-
+  // Obtain the root hash of the Merkle Tree and convert it to a hexadecimal string
+  rootHash = merkleTree.getRoot();
+  rootHashHexString = `0x${rootHash.toString("hex")}`;
 });
 
+describe("setMerkleRoot check", () => {
+  it("[S] Should set the Merkle Root correctly by Owner", async function () {
+    // Ensure that the initial Merkle Root is set to the zero address
+    expect(await IkmzERC721WL.getMerkleRoot()).to.equal(zeroAddress);
+    console.log('owner', owner);
 
+    // Set the Merkle Root by the owner
+    await IkmzERC721WL.connect(owner).setMerkleRoot(rootHashHexString);
 
+    // Verify if the Merkle Root is set correctly
+    expect(await IkmzERC721WL.getMerkleRoot()).to.equal(rootHashHexString);
+  });
 
+  it("[R] Should not allow setting Merkle Root by non-owner", async function () {
+    // Attempt to set the Merkle Root by a non-owner
+    await expect(
+      IkmzERC721WL
+        .connect(notListedUser)
+        .setMerkleRoot(rootHashHexString)
+    ).to.be.revertedWith("Ownable: caller is not the owner");
+  });
+});
 
+describe("whitelistMint check", () => {
+  it("[S] Should successfully perform whitelistMint", async () => {
+    // Test the current balance of allowListedUser and notListedUser
+    expect(await IkmzERC721WL.balanceOf(allowListedUser.address)).to.be.equal(BigInt(0));
+    expect(await IkmzERC721WL.balanceOf(notListedUser.address)).to.be.equal(BigInt(0));
 
+    // Test the mint function call after setting the Merkle Root
+    await IkmzERC721WL.connect(owner).setMerkleRoot(rootHashHexString);
+    await IkmzERC721WL.connect(allowListedUser).whitelistMint(hexProof);
 
+    // Test the balance after minting
+    expect(await IkmzERC721WL.balanceOf(allowListedUser.address)).to.be.equal(BigInt(1));
+    expect(await IkmzERC721WL.balanceOf(notListedUser.address)).to.be.equal(BigInt(0));
 
-
-
-
-
-
-
-
-
-
-
-
-// うまくいかん
-// allowlistに登録されているhardhatのsignerに接続してにはじかれる
-// (; ･`д･´)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// describe("setMerkleRoot check", () => {
-//   it("[S] Should set the Merkle Root correctly by Owner", async function () {
-//     // Ensure that the initial Merkle Root is set correctly
-//     expect(await IkmzERC721WLAQ.getMerkleRoot()).to.equal(rootHashHexString);
-//   });
-
-//   it("[S] Should allow setting Merkle Root by owner", async function () {
-//     // Attempt to set the Merkle Root by a non-owner
-//     await IkmzERC721WLAQ
-//       .connect(owner)
-//       .setMerkleRoot(dummyMerkleRoot);
-//     // Ensure that the second Merkle Root is set correctly
-//     expect(await IkmzERC721WLAQ.getMerkleRoot()).to.equal(dummyMerkleRoot);
-//   });
-
-//   it("[R] Should not allow setting Merkle Root by non-owner", async function () {
-//     // Attempt to set the Merkle Root by a non-owner
-//     await expect(
-//       IkmzERC721WLAQ
-//         .connect(notListedUser)
-//         .setMerkleRoot(dummyMerkleRoot)
-//     ).to.be.revertedWith("Ownable: caller is not the owner");
-//     // Ensure that the initial Merkle Root is set correctly
-//     expect(await IkmzERC721WLAQ.getMerkleRoot()).to.equal(rootHashHexString);
-//   });
-// });
-
-// describe("whitelistMint check", () => {
-//   it("[S] Should successfully perform whitelistMint", async () => {
-//     // Test the current balance of allowListedUser and notListedUser
-//     expect(await IkmzERC721WLAQ.balanceOf(allowListedUser.address)).to.be.equal(BigInt(0));
-//     expect(await IkmzERC721WLAQ.balanceOf(notListedUser.address)).to.be.equal(BigInt(0));
-
-//     // Test the mint function call after confirming the Merkle Root
-//     expect(await IkmzERC721WLAQ.getMerkleRoot()).to.equal(rootHashHexString);
-//     await IkmzERC721WLAQ.connect(allowListedUser).whitelistMint(2, hexProof);
-
-//     // Test the balance after minting
-//     expect(await IkmzERC721WLAQ.balanceOf(allowListedUser.address)).to.be.equal(BigInt(2));
-//     expect(await IkmzERC721WLAQ.balanceOf(notListedUser.address)).to.be.equal(BigInt(0));
-
-//     // Ensure that non-listed user cannot mint with an invalid proof
-//     await expect(
-//       IkmzERC721WLAQ.connect(notListedUser).whitelistMint(2, hexProof)
-//     ).to.be.revertedWith("Invalid proof");
-//   });
-// });
+    // Ensure that non-listed user cannot mint with an invalid proof
+    await expect(
+      IkmzERC721WL.connect(notListedUser).whitelistMint(hexProof)
+    ).to.be.revertedWith("Invalid proof");
+  });
+});
