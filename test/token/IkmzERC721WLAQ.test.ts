@@ -117,13 +117,13 @@ describe("whitelistMint check", () => {
     console.log(' hexProof[0]', hexProof[0]);
     await IkmzERC721WLAQ.connect(allowListedUser).whitelistMint(1, hexProof[0]);
 
-    // // Test the balance after minting
-    // expect(await IkmzERC721WLAQ.balanceOf(allowListedUser.address)).to.be.equal(BigInt(1));
-    // expect(await IkmzERC721WLAQ.balanceOf(notListedUser.address)).to.be.equal(BigInt(0));
+    // Test the balance after minting
+    expect(await IkmzERC721WLAQ.balanceOf(allowListedUser.address)).to.be.equal(BigInt(1));
+    expect(await IkmzERC721WLAQ.balanceOf(notListedUser.address)).to.be.equal(BigInt(0));
 
-    // // Ensure that non-listed user cannot mint with an invalid proof
-    // await expect(
-    //   IkmzERC721WLAQ.connect(notListedUser).whitelistMint(hexProof)
-    // ).to.be.revertedWith("Invalid proof");
+    // Ensure that non-listed user cannot mint with an invalid proof
+    await expect(
+      IkmzERC721WLAQ.connect(notListedUser).whitelistMint(1, hexProof[0])
+    ).to.be.revertedWith("invalid proof");
   });
 });
