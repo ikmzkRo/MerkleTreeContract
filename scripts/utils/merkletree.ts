@@ -5,24 +5,11 @@ import keccak256 from 'keccak256';
 import { MerkleTree } from 'merkletreejs';
 
 import { MerkleTreeData } from './interfaces';
+import { makeWhitelistAddressQuantity } from './data';
 
 export const makeMerkleTree = async (): Promise<MerkleTreeData> => {
-  const signers = await ethers.getSigners();
   // alice, bob, carol
-  const inputs = [
-    {
-      address: signers[1].address,
-      quantity: 1,
-    },
-    {
-      address: signers[2].address,
-      quantity: 2,
-    },
-    {
-      address: signers[3].address,
-      quantity: 1,
-    },
-  ];
+  const inputs = await makeWhitelistAddressQuantity();
 
   // create leaves from inputs
   const leaves = inputs.map((x) =>
