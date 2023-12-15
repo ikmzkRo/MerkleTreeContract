@@ -52,6 +52,8 @@ describe('IkmzERC721WLAQ', function () {
     this.IkmzERC721WLAQ = IkmzERC721WLAQ;
     this.users = users;
     this.merkleTreeData = merkleTreeData;
+
+    expect(await this.IkmzERC721WLAQ.getMerkleRoot()).to.equal(merkleTreeData.root);
   });
 
   describe('Deployment', function () {
@@ -62,6 +64,33 @@ describe('IkmzERC721WLAQ', function () {
       expect(await this.IkmzERC721WLAQ.symbol()).to.equal('ZTMY');
     });
   });
+
+  describe('whitelistMint', function () {
+    // beforeEach(async function () {
+    //   await this.IkmzERC721WLAQ
+    //     .connect(this.users.alice)
+    //     .whitelistMint(1, this.merkleTreeData.proofs[0]);
+
+    //   await this.IkmzERC721WLAQ
+    //     .connect(this.users.bob)
+    //     .whitelistMint(2, this.merkleTreeData.proofs[1]);
+    // });
+
+    // it('Should allow whitelisted users to mint', async function () {
+    //   const aliceBalance = await this.IkmzERC721WLAQ.balanceOf(
+    //     await this.users.alice.getAddress()
+    //   );
+
+    //   expect(aliceBalance).to.equal(1);
+
+    //   const bobBalance = await this.IkmzERC721WLAQ.balanceOf(
+    //     await this.users.bob.getAddress()
+    //   );
+
+    //   expect(bobBalance).to.equal(2);
+    // });
+
+  })
 
 });
 

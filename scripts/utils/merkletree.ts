@@ -25,7 +25,9 @@ export const makeMerkleTree = async (): Promise<MerkleTreeData> => {
   // get the root
   const root = tree.getHexRoot();
 
+  // get the proofs
   const proofs = leaves.map((leaf) => tree.getHexProof(leaf));
+
   return {
     proofs,
     root,
