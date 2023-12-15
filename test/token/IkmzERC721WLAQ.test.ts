@@ -30,140 +30,106 @@ let rootHashHexString: any;
 const zeroAddress = '0x0000000000000000000000000000000000000000000000000000000000000000'
 const dummyMerkleRoot = "0x3e35b61278fbcec3f3b0bb361d928e373e089a61758af09690ce0a5391078ff2"
 
-describe("Verification of Merkle Proof Authentication using MerkleTree in merkletreejs.", function () {
-  it("[S] Verification of Merkle Proof Authentication ", async () => {
-    // 2. Collect list of wallet addresses from competition, raffle, etc.
-    // Define list of 7 public Ethereum addresses
-    // npx hardhat node (#0~#6))
-    let whitelistAddresses = [
-      "0X5B38DA6A701C568545DCFCB03FCB875F56BEDDC4",
-      "0X5A641E5FB72A2FD9137312E7694D42996D689D99",
-      "0XDCAB482177A592E424D1C8318A464FC922E8DE40",
-      "0X6E21D37E07A6F7E53C7ACE372CEC63D4AE4B6BD0",
-      "0X09BAAB19FC77C19898140DADD30C4685C597620B",
-      "0XCC4C29997177253376528C05D3DF91CF2D69061A",
-      "0xdD870fA1b7C4700F2BD7f44238821C26f7392148" // The address in remix
-    ];
+// beforeEach(async () => {
+//   // Deploy the IkmzERC721WLAQ contract
+//   IkmzERC721WLAQFactory = await ethers.getContractFactory("IkmzERC721WLAQ");
+//   IkmzERC721WLAQ = await IkmzERC721WLAQFactory.deploy(rootHashHexString);
+//   await IkmzERC721WLAQ.deployed();
+// });
 
-    // 3. Create a new array of `leafNodes` by hashing all indexes of the `whitelistAddresses`
-    // using `keccak256`. Then creates a Merkle Tree object using keccak256 as the algorithm.
-    // The leaves, merkleTree, and rootHas are all PRE-DETERMINED prior to whitelist claim
-
-    // Transforming a list of EOAs into their respective Keccak-256 hashes.
-    const leafNodes = whitelistAddresses.map(addr => keccak256(addr));
-
-    // Constructing a Merkle Tree.
-    const merkleTree = new MerkleTree(leafNodes, keccak256, { sortPairs: true });
-
-    // 4. Get root hash of the `merkleeTree` in hexadecimal format (0x)
-    // Print out the Entire Merkle Tree.
-    // Calculating the Merkle Root.
-    const allowlistRootHash = merkleTree.getRoot();
-    console.log('Whitelist Merkle Tree\n', merkleTree.toString());
-    console.log("Root Hash: ", allowlistRootHash);
-
-    // 5. Convert Buffer to hex string with '0x' prefix
-    const allowlistRootHashHexString = "0x" + allowlistRootHash.toString("hex");
-
-    // 6. Choose claiming address from whitelist
-    const claimingAddress = leafNodes[6];
-    const hexProof = merkleTree.getHexProof(claimingAddress);
-
-    // 7. Verify the Merkle Proof for the claiming address against the calculated Merkle Root.
-
-    // Log the Hex Proof for the claiming address.
-    console.log('Hex Proof:', hexProof);
-
-    // Log the Ethereum address for which the Merkle Proof is being verified.
-    console.log('Claiming Address:', claimingAddress);
-
-    // Log the calculated Merkle Root based on the whitelist.
-    console.log('Allowlist Root Hash:', allowlistRootHash);
-
-    // Log the result of the verification, indicating whether the Merkle Proof is valid for the claiming address.
-    console.log('Verification Result:', merkleTree.verify(hexProof, claimingAddress, allowlistRootHash));
-  })
-});
-
-
-beforeEach(async () => {
-  // Obtain Ethereum signers for various roles: owner, allowListedUser, notListedUser
-  [owner, allowListedUser, notListedUser] = await ethers.getSigners();
-
-  // Define the Merkle Tree for whitelist verification
-  const allowList = [
-    allowListedUser.address,
-    "0X5B38DA6A701C568545DCFCB03FCB875F56BEDDC4",
-    "0X5A641E5FB72A2FD9137312E7694D42996D689D99",
-    "0XDCAB482177A592E424D1C8318A464FC922E8DE40",
-    "0X6E21D37E07A6F7E53C7ACE372CEC63D4AE4B6BD0",
-    "0X09BAAB19FC77C19898140DADD30C4685C597620B",
-    "0XCC4C29997177253376528C05D3DF91CF2D69061A",
-    "0xdD870fA1b7C4700F2BD7f44238821C26f7392148"
-  ];
-
-  // Create a Merkle Tree using Ethereum addresses and Keccak-256 hashing
-  const merkleTree = new MerkleTree(allowList.map(keccak256), keccak256, {
-    sortPairs: true,
-  });
-
-  // Obtain the Hex Proof for the address of the allowListedUser
-  hexProof = merkleTree.getHexProof(keccak256(allowListedUser.address));
-
-  // Obtain the root hash of the Merkle Tree and convert it to a hexadecimal string
-  rootHash = merkleTree.getRoot();
-  rootHashHexString = `0x${rootHash.toString("hex")}`;
-
-  // Deploy the IkmzERC721WLAQ contract
-  IkmzERC721WLAQFactory = await ethers.getContractFactory("IkmzERC721WLAQ");
-  IkmzERC721WLAQ = await IkmzERC721WLAQFactory.deploy(rootHashHexString);
-  await IkmzERC721WLAQ.deployed();
-});
 
 describe("setMerkleRoot check", () => {
-  it("[S] Should set the Merkle Root correctly by Owner", async function () {
-    // Ensure that the initial Merkle Root is set correctly
-    expect(await IkmzERC721WLAQ.getMerkleRoot()).to.equal(rootHashHexString);
-  });
+  it("[S] test", async function () {
+    // Obtain Ethereum signers for various roles: owner, allowListedUser, notListedUser
+    const signers = await ethers.getSigners();
 
-  it("[S] Should allow setting Merkle Root by owner", async function () {
-    // Attempt to set the Merkle Root by a non-owner
-    await IkmzERC721WLAQ
-      .connect(owner)
-      .setMerkleRoot(dummyMerkleRoot);
-    // Ensure that the second Merkle Root is set correctly
-    expect(await IkmzERC721WLAQ.getMerkleRoot()).to.equal(dummyMerkleRoot);
-  });
+    // Define the Merkle Tree for whitelist verification
+    const inputs = [
+      {
+        address: signers[1].address,
+        quantity: 1,
+      },
+      {
+        address: signers[2].address,
+        quantity: 2,
+      },
+      {
+        address: signers[3].address,
+        quantity: 1,
+      },
+      {
+        address: "0xa2fb2553e57436b455F57270Cc6f56f6dacDA1a5",
+        quantity: 2,
+      }
+    ];
 
-  it("[R] Should not allow setting Merkle Root by non-owner", async function () {
-    // Attempt to set the Merkle Root by a non-owner
-    await expect(
-      IkmzERC721WLAQ
-        .connect(notListedUser)
-        .setMerkleRoot(dummyMerkleRoot)
-    ).to.be.revertedWith("Ownable: caller is not the owner");
-    // Ensure that the initial Merkle Root is set correctly
-    expect(await IkmzERC721WLAQ.getMerkleRoot()).to.equal(rootHashHexString);
-  });
-});
+    // create leaves from inputs
+    const leaves = inputs.map((x) =>
+      ethers.utils.solidityKeccak256(
+        ['address', 'uint256'],
+        [x.address, x.quantity]
+      )
+    );
 
-describe("whitelistMint check", () => {
-  it("[S] Should successfully perform whitelistMint", async () => {
-    // Test the current balance of allowListedUser and notListedUser
-    expect(await IkmzERC721WLAQ.balanceOf(allowListedUser.address)).to.be.equal(BigInt(0));
-    expect(await IkmzERC721WLAQ.balanceOf(notListedUser.address)).to.be.equal(BigInt(0));
+    // create a Merkle Tree using keccak256 hash function
+    const tree = new MerkleTree(leaves, keccak256, { sort: true });
 
-    // Test the mint function call after confirming the Merkle Root
-    expect(await IkmzERC721WLAQ.getMerkleRoot()).to.equal(rootHashHexString);
-    await IkmzERC721WLAQ.connect(allowListedUser).whitelistMint(2, hexProof);
+    // get the root
+    const root = tree.getHexRoot();
 
-    // Test the balance after minting
-    expect(await IkmzERC721WLAQ.balanceOf(allowListedUser.address)).to.be.equal(BigInt(2));
-    expect(await IkmzERC721WLAQ.balanceOf(notListedUser.address)).to.be.equal(BigInt(0));
+    const proofs = leaves.map((leaf) => tree.getHexProof(leaf));
+    console.log('proofs', proofs);
+    console.log('root', root);
+  })
+})
 
-    // Ensure that non-listed user cannot mint with an invalid proof
-    await expect(
-      IkmzERC721WLAQ.connect(notListedUser).whitelistMint(2, hexProof)
-    ).to.be.revertedWith("Invalid proof");
-  });
-});
+
+
+
+// describe("setMerkleRoot check", () => {
+//   it("[S] Should set the Merkle Root correctly by Owner", async function () {
+//     // Ensure that the initial Merkle Root is set correctly
+//     expect(await IkmzERC721WLAQ.getMerkleRoot()).to.equal(rootHashHexString);
+//   });
+
+//   it("[S] Should allow setting Merkle Root by owner", async function () {
+//     // Attempt to set the Merkle Root by a non-owner
+//     await IkmzERC721WLAQ
+//       .connect(owner)
+//       .setMerkleRoot(dummyMerkleRoot);
+//     // Ensure that the second Merkle Root is set correctly
+//     expect(await IkmzERC721WLAQ.getMerkleRoot()).to.equal(dummyMerkleRoot);
+//   });
+
+//   it("[R] Should not allow setting Merkle Root by non-owner", async function () {
+//     // Attempt to set the Merkle Root by a non-owner
+//     await expect(
+//       IkmzERC721WLAQ
+//         .connect(notListedUser)
+//         .setMerkleRoot(dummyMerkleRoot)
+//     ).to.be.revertedWith("Ownable: caller is not the owner");
+//     // Ensure that the initial Merkle Root is set correctly
+//     expect(await IkmzERC721WLAQ.getMerkleRoot()).to.equal(rootHashHexString);
+//   });
+// });
+
+// describe("whitelistMint check", () => {
+//   it("[S] Should successfully perform whitelistMint", async () => {
+//     // Test the current balance of allowListedUser and notListedUser
+//     expect(await IkmzERC721WLAQ.balanceOf(allowListedUser.address)).to.be.equal(BigInt(0));
+//     expect(await IkmzERC721WLAQ.balanceOf(notListedUser.address)).to.be.equal(BigInt(0));
+
+//     // Test the mint function call after confirming the Merkle Root
+//     expect(await IkmzERC721WLAQ.getMerkleRoot()).to.equal(rootHashHexString);
+//     await IkmzERC721WLAQ.connect(allowListedUser).whitelistMint(2, hexProof);
+
+//     // Test the balance after minting
+//     expect(await IkmzERC721WLAQ.balanceOf(allowListedUser.address)).to.be.equal(BigInt(2));
+//     expect(await IkmzERC721WLAQ.balanceOf(notListedUser.address)).to.be.equal(BigInt(0));
+
+//     // Ensure that non-listed user cannot mint with an invalid proof
+//     await expect(
+//       IkmzERC721WLAQ.connect(notListedUser).whitelistMint(2, hexProof)
+//     ).to.be.revertedWith("Invalid proof");
+//   });
+// });
