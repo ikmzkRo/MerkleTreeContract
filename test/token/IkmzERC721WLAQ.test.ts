@@ -7,7 +7,7 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 const { MerkleTree } = require('merkletreejs');
 const keccak256 = require('keccak256');
 import { makeMerkleTree } from '../../scripts/utils/merkletree';
-import { makeUsers } from '../../scripts/utils/data';
+import { makeSigners } from '../../scripts/utils/data';
 
 import chai from "chai";
 import ChaiAsPromised from "chai-as-promised";
@@ -34,7 +34,7 @@ describe('IkmzERC721WLAQ', function () {
     const merkleTreeData = await makeMerkleTree();
     const { root } = merkleTreeData;
 
-    const users = await makeUsers();
+    const signers = await makeSigners();
 
     IkmzERC721WLAQFactory = await ethers.getContractFactory("IkmzERC721WLAQ");
 
@@ -42,18 +42,16 @@ describe('IkmzERC721WLAQ', function () {
 
     await IkmzERC721WLAQ.deployed();
 
-    return { IkmzERC721WLAQ, merkleTreeData, users };
+    return { IkmzERC721WLAQ, merkleTreeData, signers };
   }
 
   beforeEach(async function () {
-    const { IkmzERC721WLAQ, users, merkleTreeData } = await loadFixture(
+    const { IkmzERC721WLAQ, signers, merkleTreeData } = await loadFixture(
       createTestFixture
     );
     this.IkmzERC721WLAQ = IkmzERC721WLAQ;
-    this.users = users;
+    this.signers = signers;
     this.merkleTreeData = merkleTreeData;
-
-    expect(await this.IkmzERC721WLAQ.getMerkleRoot()).to.equal(merkleTreeData.root);
   });
 
   describe('Deployment', function () {
@@ -62,33 +60,31 @@ describe('IkmzERC721WLAQ', function () {
         'zuyomayo'
       );
       expect(await this.IkmzERC721WLAQ.symbol()).to.equal('ZTMY');
+      expect(await this.IkmzERC721WLAQ.getMerkleRoot()).to.equal(this.merkleTreeData.root);
     });
   });
 
   describe('whitelistMint', function () {
-    // beforeEach(async function () {
-    //   await this.IkmzERC721WLAQ
-    //     .connect(this.users.alice)
-    //     .whitelistMint(1, this.merkleTreeData.proofs[0]);
+    beforeEach(async function () {
+      [owner, allowListedUser, notListedUser] = await ethers.getSigners();
+      await this.IkmzERC721WLAQ
+        .connect(owner)
+        .whitelistMint(1, this.merkleTreeData.proofs[2]);
+    });
 
-    //   await this.IkmzERC721WLAQ
-    //     .connect(this.users.bob)
-    //     .whitelistMint(2, this.merkleTreeData.proofs[1]);
-    // });
+    it('Should allow whitelisted users to mint', async function () {
+      // const aliceBalance = await this.IkmzERC721WLAQ.balanceOf(
+      //   await this.users.alice.getAddress()
+      // );
 
-    // it('Should allow whitelisted users to mint', async function () {
-    //   const aliceBalance = await this.IkmzERC721WLAQ.balanceOf(
-    //     await this.users.alice.getAddress()
-    //   );
+      // expect(aliceBalance).to.equal(1);
 
-    //   expect(aliceBalance).to.equal(1);
+      // const bobBalance = await this.IkmzERC721WLAQ.balanceOf(
+      //   await this.users.bob.getAddress()
+      // );
 
-    //   const bobBalance = await this.IkmzERC721WLAQ.balanceOf(
-    //     await this.users.bob.getAddress()
-    //   );
-
-    //   expect(bobBalance).to.equal(2);
-    // });
+      // expect(bobBalance).to.equal(2);
+    });
 
   })
 
@@ -112,8 +108,9 @@ describe('IkmzERC721WLAQ', function () {
 
 
 
-
-
+// うまくいかん
+// allowlistに登録されているhardhatのsignerに接続してにはじかれる
+// (; ･`д･´)
 
 
 

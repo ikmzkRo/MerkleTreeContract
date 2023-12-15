@@ -11,7 +11,6 @@ export interface Whitelist {
   alice: string;
   bob: string;
   carol: string;
-  david: string;
   ikmz: string;
 }
 
