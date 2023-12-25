@@ -1,95 +1,65 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
-import "@openzeppelin/contracts/security/Pausable.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/token/ERC20/extensions/draft-ERC20Permit.sol";
-import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
+import '../../../token/ikmz-ERC20/study/ERC20.sol';
 
-// https://zenn.dev/mashharuki/articles/53b82b28db44c8
-contract MyToken is ERC20, ERC20Burnable, Pausable, Ownable, ERC20Permit, ERC20Votes {
+/**
+ * MyTokenFactoryコントラクト
+ * https://zenn.dev/mashharuki/articles/53b82b28db44c8
+ */
+contract MyTokenFactory {
+    // MyToken型の配列
+    MyToken[] private _myTokens;
+    // myTokens関数から返すことのできる最大値
+    uint256 constant maxLimit = 20;
 
-      // トークン名
-      string tokenName;
-      // シンボル名
-      string tokenSymbol;
+    // インスタンスが生成された時のイベント
+    event MyTokenCreated (MyToken indexed myToken, address indexed owner);
 
-      /**
-       * コンストラクター
-       * @param _name トークン名
-       * @param _symbol シンボル名
-       */
-      constructor(string memory _name, string memory _symbol) ERC20(_name, _symbol) ERC20Permit(_name) {
-            // トークン名とシンボル名を設定する
-            tokenName = _name;
-            tokenSymbol = _symbol;
-      }
+    /**
+     * インスタンス数を取得する関数
+     */
+    function myTokensCount () public view returns (uint256) {
+        return _myTokens.length;
+    }
 
-      /**
-       * トークンを停止するための関数
-       */
-      function pause() public onlyOwner {
-            _pause();
-      }
+    /**
+     * MyTokenコントラクト生成関数
+     * @param name トークン名
+     * @param symbol シンボル名
+     */
+    function createMyToken (string memory name, string memory symbol) public {
+        // インスタンスを生成
+        MyToken myToken = new MyToken(name, symbol);
+        // コントラクト呼び出し元アドレスに権限を移譲する。
+        myToken.transferOwnership(msg.sender);
+        // 配列に格納する。
+        _myTokens.push(myToken);
+        // イベントの発行
+        emit MyTokenCreated(myToken, msg.sender);
+    }
 
-      /**
-       * 停止状態を解除するための関数
-       */
-      function unpause() public onlyOwner {
-            _unpause();
-      }
+    /**
+     * MyTokenコントラクト群を取得する関数
+     * @param limit 上限取得値
+     * @param offset 取得数
+     * @return coll MyTokenコントラクトの配列 
+     */
+    function myTokens (uint256 limit, uint256 offset) public view returns (MyToken[] memory coll) {
+        // 取得前に確認
+        require (offset <= myTokensCount(), "offset out of bounds");
+        // 最大値を上回っている場合は、limitを格納する。
+        uint256 size = myTokensCount() - offset;
+        size = size < limit ? size : limit;
+        // sizeは、maxLimitを超えてはならない。
+        size = size < maxLimit ? size : maxLimit;
+        // コントラクト用の配列
+        coll = new MyToken[](size);
 
-      /**
-       * トークンを発行する関数
-       * @param to 発行先アドレス
-       * @param amount 発行数 
-       */
-      function mint(address to, uint256 amount) public onlyOwner {
-            _mint(to, amount);
-      }
+        for (uint256 i = 0; i < size; i++) {
+            coll[i] = _myTokens[offset + i];
+        }
 
-      /**
-       * トークンを償却する関数
-       * @param to 発行先アドレス
-       * @param amount 発行数 
-       */
-      function burn(address to, uint256 amount) public onlyOwner {
-            _burn(to, amount);
-      }
-
-      /**
-       * トークン移転用の関数
-       * @param from 発行元アドレス
-       * @param to 発行先アドレス
-       * @param amount 発行数
-       */
-      function _beforeTokenTransfer(address from, address to, uint256 amount) internal whenNotPaused override {
-            super._beforeTokenTransfer(from, to, amount);
-      }
-   
-      /**
-       * トークン移転用の関数
-       * @param from 発行元アドレス
-       * @param to 発行先アドレス
-       * @param amount 発行数
-       */
-      function _afterTokenTransfer(address from, address to, uint256 amount) internal override(ERC20, ERC20Votes) {
-            super._afterTokenTransfer(from, to, amount);
-      }
-
-      /**
-       * 発行用の関数
-       */
-      function _mint(address to, uint256 amount) internal override(ERC20, ERC20Votes) {
-            super._mint(to, amount);
-      }
-
-      /**
-       * 償却用の関数
-       */
-      function _burn(address account, uint256 amount) internal override(ERC20, ERC20Votes) {
-            super._burn(account, amount);
-      }
+        return coll;    
+    }
 }
