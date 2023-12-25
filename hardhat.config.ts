@@ -2,6 +2,7 @@
 // hardhat init: https://hardhat.org/hardhat-runner/docs/guides/migrating-from-hardhat-waffle
 require("@nomiclabs/hardhat-waffle");
 require("dotenv").config();
+require('@openzeppelin/hardhat-upgrades');
 require("@nomiclabs/hardhat-etherscan");
 import { HardhatUserConfig, task } from "hardhat/config";
 import "hardhat-gas-reporter";
