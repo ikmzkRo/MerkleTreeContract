@@ -45,6 +45,7 @@
     "Chai": "npm:chai@^4.3.7",
     "chai-as-promised": "^7.1.1",
     "keccak256": "^1.0.6",
-    "merkletreejs": "^0.2.27"
+    "merkletreejs": "^0.2.27",
+    "base64-sol": "^1.1.0"
   }
 }

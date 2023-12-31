@@ -19,10 +19,7 @@ pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-
-// TODO: 実装追加
 import "base64-sol/base64.sol";
-
 import './libraries/NFTSVG.sol';
 import './verifier.sol';
 
