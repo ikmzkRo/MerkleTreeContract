@@ -23,7 +23,6 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 // TODO: 実装追加
 import "base64-sol/base64.sol";
 
-// TODO: 実装追加
 import './libraries/NFTSVG.sol';
 import './verifier.sol';
 
